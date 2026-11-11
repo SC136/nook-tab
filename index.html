@@ -738,7 +738,7 @@ const FONTS = {
   mono: '"Cascadia Mono", Consolas, "Courier New", monospace',
   din: 'Bahnschrift, "DIN Alternate", "Segoe UI", sans-serif'
 };
-const DEFAULTS = { theme: 'paper', mode: 'auto', font: '', customFont: '', accent: '', bg: 'theme', bgColor: '#1d2330', bgUrl: '', dim: 50, loc: null, skyWx: 'live', skyDim: 15 };
+const DEFAULTS = { theme: 'material', mode: 'auto', font: '', customFont: '', accent: '', bg: 'theme', bgColor: '#1d2330', bgUrl: '', dim: 50, loc: null, skyWx: 'live', skyDim: 15 };
 const oldMode = store.get('theme', 'auto');
 let cfg = { ...DEFAULTS, mode: ['auto', 'light', 'dark'].includes(oldMode) ? oldMode : 'auto', ...store.get('cfg', {}) };
 const LEGACY = { arasaka: 'redline', persona: 'ransom' }; // legacy-ids: settings saved before the theme ids changed
