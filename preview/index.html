@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nook Tab · preview</title>
+<meta name="description" content="A customisable new tab page: themes, movable widgets, a live sky, shortcuts and a to-do list. Try it here.">
+<meta name="theme-color" content="#111114">
+<link rel="canonical" href="https://sc136.github.io/nook-tab/preview/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Nook Tab">
+<meta property="og:title" content="Nook Tab · try it in your browser">
+<meta property="og:description" content="A customisable new tab page with Material 3 themes, a live sky, shortcuts and a to-do list. Try it here.">
+<meta property="og:url" content="https://sc136.github.io/nook-tab/preview/">
+<meta property="og:image" content="https://sc136.github.io/nook-tab/og.png">
+<meta property="og:image:secure_url" content="https://sc136.github.io/nook-tab/og.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nook Tab: a customisable home page with a clock, search and shortcuts">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nook Tab · try it in your browser">
+<meta name="twitter:description" content="A customisable new tab page with Material 3 themes, a live sky, shortcuts and a to-do list. Try it here.">
+<meta name="twitter:image" content="https://sc136.github.io/nook-tab/og.png">
+<meta name="twitter:image:alt" content="Nook Tab: a customisable home page with a clock, search and shortcuts">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #111114; --surface: #1b1b20; --high: #26262c; --line: #33333b;
+    --ink: #ece9ef; --muted: #a9a5b0; --accent: #ffb4a1; --on-accent: #561f10;
+    --sans: "Google Sans Flex", "Google Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font: 16px/1.55 var(--sans); color: var(--ink); background: var(--bg); }
+  a { color: var(--accent); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  /* top bar */
+  .bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .brand { font-weight: 600; color: var(--ink); text-decoration: none; letter-spacing: .01em; }
+  .bar nav { display: flex; gap: 6px; }
+  .bar nav a { color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 999px; font-size: 14px; }
+  .bar nav a:hover { color: var(--ink); background: var(--high); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--ink); background: var(--high); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn:hover { filter: brightness(1.08); }
+
+  /* hero */
+  .hero { padding: 84px 0 56px; text-align: center; }
+  .eyebrow { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h1 { font-size: clamp(40px, 7vw, 68px); line-height: 1.05; margin: 14px 0 18px; font-weight: 500; letter-spacing: -.02em; }
+  .lede { color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); max-width: 640px; margin: 0 auto 30px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* live demo */
+  .demo { padding: 8px 0 80px; }
+  .frame { position: relative; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 30px 80px rgb(0 0 0 / .45); }
+  .frame-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--high); }
+  .frame-head .url { margin-left: 10px; flex: 1; font-size: 13px; color: var(--muted); background: var(--bg); border-radius: 999px; padding: 4px 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .frame-head a { font-size: 13px; text-decoration: none; color: var(--accent); white-space: nowrap; }
+  iframe { display: block; width: 100%; height: min(78vh, 760px); border: 0; background: var(--bg); }
+  .note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+  /* features */
+  section.block { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(28px, 4vw, 38px); font-weight: 500; margin: 0 0 10px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 36px; max-width: 620px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 26px; }
+  .chip { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 16px; background: var(--accent); color: var(--on-accent); font-weight: 700; margin-bottom: 18px; }
+  .card h3 { margin: 0 0 8px; font-size: 19px; font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  /* themes */
+  .themes { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .swatch { border-radius: 22px; border: 1px solid var(--line); padding: 20px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+  .swatch b { font-weight: 600; font-size: 17px; }
+  .swatch span { font-size: 13px; opacity: .8; }
+  .paper { background: #f3efe6; color: #1f1d1a; }
+  .slate { background: #0f1318; color: #e8ebf0; border-color: #272e38; }
+  .mat { background: #231917; color: #f1dfda; }
+  .mat b { color: #ffb4a1; }
+  .redline { background: #060001; color: #ff4d66; border-color: #8a0a1e; }
+  .ransom { background: #cf0a0a; color: #fff; border-color: #fff; box-shadow: 6px 6px 0 #0a0a0a; }
+  .ransom b { font-family: Impact, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+
+  /* steps */
+  .steps { counter-reset: s; display: grid; gap: 14px; }
+  .steps li { list-style: none; display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; }
+  .steps li::before { counter-increment: s; content: counter(s); flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--high); color: var(--accent); font-weight: 700; }
+  ul.steps { padding: 0; margin: 0; }
+  .steps code { background: var(--bg); padding: 2px 7px; border-radius: 8px; font-size: 14px; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .bar nav a:not(.keep) { display: none; }
+    .hero { padding-top: 56px; }
+    .frame { border-radius: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">Nook Tab</a>
+    <nav>
+      <a href="#try">Try it</a>
+      <a href="#features">Features</a>
+      <a href="#themes">Themes</a>
+      <a href="#install">Install</a>
+      <a class="keep" href="https://github.com/SC136/nook-tab" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <section class="hero">
+    <div class="eyebrow">A new tab that is yours</div>
+    <h1>Your home page,<br>arranged your way.</h1>
+    <p class="lede">Themes built on Material 3 Expressive, movable widgets, a live sky for your city, shortcuts with brand icons and a to-do list. No accounts, no ads.</p>
+    <div class="cta">
+      <a class="btn primary" href="../" target="_blank" rel="noopener">Open full screen</a>
+      <a class="btn" href="#install">Install it</a>
+    </div>
+  </section>
+
+  <section class="demo" id="try">
+    <div class="frame">
+      <div class="frame-head">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div class="url">sc136.github.io/nook-tab</div>
+        <a href="../" target="_blank" rel="noopener">Full screen ↗</a>
+      </div>
+      <iframe src="../" title="Live preview of Nook Tab" loading="lazy" allow="geolocation"></iframe>
+    </div>
+    <p class="note">This is the real page, running live. Try <b>Customise</b>, <b>Layout</b> to move things, or type a search.</p>
+  </section>
+</main>
+
+<section class="block" id="features">
+  <div class="wrap">
+    <h2>Everything on one page</h2>
+    <p class="sub">Each block is a piece you can move, resize, hide or bring back.</p>
+    <div class="grid">
+      <div class="card"><div class="chip">12</div><h3>A clock that fills the space</h3><p>Large, tabular digits that scale with the block. 12- or 24-hour, and a greeting that follows the time of day.</p></div>
+      <div class="card"><div class="chip">Q</div><h3>Search your way</h3><p>Use your browser's default engine, or pick Google, DuckDuckGo, YouTube, GitHub or Wikipedia. Type <code>y</code> or <code>gh</code> then a space before a search to use YouTube or GitHub just once.</p></div>
+      <div class="card"><div class="chip">◎</div><h3>Shortcuts with real logos</h3><p>Brand icons that take your theme's colours, the site's own icon as a fallback, and your own sites added in a click.</p></div>
+      <div class="card"><div class="chip">☁</div><h3>A live sky</h3><p>Pick a city and the background follows its real sunrise and sunset, with clouds, rain, snow, fog and lightning.</p></div>
+      <div class="card"><div class="chip">✓</div><h3>Today's to-dos</h3><p>A quiet list at the bottom of the page. Tick things off, clear the done ones, and keep the rest in view.</p></div>
+      <div class="card"><div class="chip">⇄</div><h3>Share your setup</h3><p>Export your look to a small file and send it to a friend. They import it and the page looks the same, without your name or to-dos.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="themes">
+  <div class="wrap">
+    <h2>Five looks</h2>
+    <p class="sub">Each theme changes the type, shapes and colours. Material 3 takes its whole palette from the accent colour you pick.</p>
+    <div class="themes">
+      <div class="swatch paper"><b>Paper</b><span>Warm, quiet, serif clock</span></div>
+      <div class="swatch slate"><b>Slate</b><span>Cool blue-grey, system type</span></div>
+      <div class="swatch mat"><b>Material 3</b><span>Expressive shapes, Google Sans Flex. Default.</span></div>
+      <div class="swatch redline"><b>Redline</b><span>Terminal red, scanlines</span></div>
+      <div class="swatch ransom"><b>Ransom</b><span>Cut-paper red and black</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="install">
+  <div class="wrap">
+    <h2>Use it as your new tab</h2>
+    <p class="sub">Try it on the web first. To make it open on every new tab, install the extension.</p>
+    <ol class="steps">
+      <li><div><b>Get the extension.</b> Download the zip from the <a href="https://github.com/SC136/nook-tab" target="_blank" rel="noopener">GitHub repository</a> and unzip it somewhere you'll keep it.</div></li>
+      <li><div><b>Load it in Chrome, Edge, Brave or Opera.</b> Open <code>chrome://extensions</code>, turn on Developer mode, click Load unpacked and choose the folder with <code>manifest.json</code>.</div></li>
+      <li><div><b>Or in Firefox.</b> Open <code>about:debugging</code>, choose This Firefox, then Load Temporary Add-on and pick <code>manifest.json</code>.</div></li>
+      <li><div><b>Make it yours.</b> Click <b>Customise</b> in the top-right corner to change the theme, accent and background. Click <b>Layout</b> to move things around.</div></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Nook Tab · made by SC136 · open source on <a href="https://github.com/SC136/nook-tab" target="_blank" rel="noopener">GitHub</a></span>
+    <span><a href="../privacy-policy.md">Privacy policy</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
