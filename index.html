@@ -905,6 +905,40 @@ function applyLook() {
   R.classList.toggle('bg-image', !!img);
   $('bgimg').style.backgroundImage = img ? `url("${img.replace(/["\\\n]/g, '')}")` : '';
   R.style.setProperty('--dim', cfg.dim / 100);
+  applyMaterialScheme();
+}
+
+/* Material 3 Expressive: the accent is the seed colour, and the whole palette is derived from it with
+   Google's material-color-utilities (loaded on demand). Without a seed the built-in coral scheme stays. */
+const M3_SEED = '#e79a86', M3_LIB = 'https://cdn.jsdelivr.net/npm/@material/material-color-utilities@0.2.7/index.js';
+let m3Lib = null, m3Loading = false, m3Key = '';
+const M3_VARS = {       // CSS variable -> scheme role
+  '--accent': 'primary', '--on-accent': 'onPrimary',
+  '--pc': 'primaryContainer', '--on-pc': 'onPrimaryContainer',
+  '--sc': 'secondaryContainer', '--on-sc': 'onSecondaryContainer',
+  '--tc': 'tertiaryContainer', '--on-tc': 'onTertiaryContainer',
+  '--bg-glow': 'primaryContainer',
+  '--line': 'outlineVariant', '--ink': 'onSurface', '--muted': 'onSurfaceVariant'
+};
+function applyMaterialScheme() {
+  if (cfg.theme !== 'material') { if (m3Key) { for (const v of [...Object.keys(M3_VARS), '--surface', '--high', '--highest', '--bg']) R.style.removeProperty(v); m3Key = ''; } return; }
+  if (!m3Lib) {
+    if (!m3Loading) { m3Loading = true; import(M3_LIB).then(M => { m3Lib = M; applyLook(); }).catch(() => { m3Loading = false; }); }
+    return;                                              // the built-in coral scheme shows until the library arrives
+  }
+  const seed = cfg.accent || M3_SEED;
+  const dark = R.dataset.mode ? R.dataset.mode === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const key = seed + (dark ? 'd' : 'l') + (cfg.bg === 'color' ? 'c' : '');
+  if (key === m3Key) return;
+  m3Key = key;
+  const theme = m3Lib.themeFromSourceColor(m3Lib.argbFromHex(seed)), scheme = theme.schemes[dark ? 'dark' : 'light'];
+  for (const [v, role] of Object.entries(M3_VARS)) R.style.setProperty(v, m3Lib.hexFromArgb(scheme[role]));
+  // surface containers are tones of the neutral palette (this library version has no container roles)
+  const tone = n => m3Lib.hexFromArgb(theme.palettes.neutral.tone(n));
+  R.style.setProperty('--surface', tone(dark ? 10 : 96));
+  R.style.setProperty('--high', tone(dark ? 17 : 92));
+  R.style.setProperty('--highest', tone(dark ? 22 : 90));
+  if (cfg.bg !== 'color') R.style.setProperty('--bg', tone(dark ? 6 : 98));
 }
 function save() { store.set('cfg', cfg); applyLook(); syncPanel(); }
 

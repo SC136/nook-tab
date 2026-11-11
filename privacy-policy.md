@@ -16,7 +16,8 @@ The page asks a few public services for things it displays. Each request contain
 |---|---|---|
 | Shortcuts are shown with "Themed" icons (the default) | A guess at the brand name of each shortcut's site, such as `github` | jsDelivr (cdn.jsdelivr.net), which hosts the Simple Icons set |
 | A site is not in that icon set, or "Original site icons" is chosen | The address of each shortcut's site, such as `https://github.com` (never the full link) | Google's favicon service (t3.gstatic.com) |
-| The "Material 3" theme is active | A request for the Google Sans Flex font | Google Fonts (fonts.googleapis.com, fonts.gstatic.com) |
+| The "Material 3" theme is active (the default) | A request for the Google Sans Flex font | Google Fonts (fonts.googleapis.com, fonts.gstatic.com) |
+| The "Material 3" theme is active (the default) | A request for Google's colour library file. It contains no personal data; the accent colour is worked out on your device. | jsDelivr (cdn.jsdelivr.net) |
 | The "Live sky" background is on and you typed a city | The city name, once, to find its coordinates | Open-Meteo (geocoding-api.open-meteo.com) |
 | The "Live sky" background is on and a place is set | That place's coordinates, rounded to two decimals (about 1 km), every 20 minutes | Open-Meteo (api.open-meteo.com) |
 | You set a background image by web address | A request for that image | The site hosting the image |
