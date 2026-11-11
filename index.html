@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab</title>
+<style>
+  /* ---------- theme: Paper (default) ---------- */
+  :root {
+    color-scheme: light dark;
+    --bg: light-dark(#f3efe6, #121317);
+    --bg-glow: light-dark(#fbe3c4, #2a2233);
+    --surface: light-dark(#fffdf8, #1b1d23);
+    --line: light-dark(#e2dccf, #2c2f38);
+    --ink: light-dark(#1f1d1a, #ecebe6);
+    --muted: light-dark(#7a7468, #8b8d97);
+    --accent: light-dark(#c8501e, #ff9a5c);
+    --on-accent: light-dark(#fff, #1a1208);
+    --shadow: light-dark(0 1px 2px rgb(60 40 10 / .06), 0 1px 2px rgb(0 0 0 / .4));
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+    --dim: .5;
+  }
+  /* ---------- theme: Slate ---------- */
+  :root[data-theme="slate"] {
+    --bg: light-dark(#eef1f5, #0f1318);
+    --bg-glow: light-dark(#d5e3f7, #17263a);
+    --surface: light-dark(#ffffff, #171c23);
+    --line: light-dark(#d9dee6, #272e38);
+    --ink: light-dark(#171a1f, #e8ebf0);
+    --muted: light-dark(#6b7380, #8792a2);
+    --accent: light-dark(#2f6fde, #7fb0ff);
+    --on-accent: light-dark(#fff, #0b1422);
+    --serif: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  /* ---------- theme: Material 3 Expressive (coral tonal-spot scheme, seed #e79a86) ---------- */
+  :root[data-theme="material"] {
+    --bg: light-dark(#fff8f6, #1a110f);
+    --bg-glow: light-dark(#ffdbd2, #41211a);
+    --surface: light-dark(#fff1ed, #231917);
+    --high: light-dark(#f7e4e0, #322825);
+    --highest: light-dark(#f1dfda, #3d3230);
+    --line: light-dark(#d8c2bc, #53433f);
+    --ink: light-dark(#231917, #f1dfda);
+    --muted: light-dark(#53433f, #d8c2bc);
+    --accent: light-dark(#8f4b39, #ffb4a1);
+    --on-accent: light-dark(#ffffff, #561f10);
+    --pc: light-dark(#ffdbd2, #723524);
+    --on-pc: light-dark(#723524, #ffdbd2);
+    --sc: light-dark(#ffdbd2, #5d4038);
+    --on-sc: light-dark(#5d4038, #ffdbd2);
+    --tc: light-dark(#f7e1a6, #534519);
+    --on-tc: light-dark(#534519, #f7e1a6);
+    --shadow: none;
+    --sans: "Google Sans Flex", "Google Sans", Roboto, system-ui, sans-serif;
+    --serif: "Google Sans Flex", "Google Sans", Roboto, system-ui, sans-serif;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  :root[data-mode="light"] { color-scheme: light; }
+  :root[data-mode="dark"] { color-scheme: dark; }
+  /* ---------- theme: Persona 5 ---------- */
+  :root[data-theme="ransom"] {
+    color-scheme: light;
+    --bg: #cf0a0a;
+    --bg-glow: transparent;
+    --surface: #0a0a0a;
+    --line: #ffffff;
+    --ink: #ffffff;
+    --muted: #f6dcdc;
+    --accent: #ffffff;
+    --on-accent: #0a0a0a;
+    --shadow: none;
+    --sans: "Segoe UI", system-ui, Roboto, sans-serif;
+    --serif: "Persona", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;   /* "Persona" is used if that font is installed */
+  }
+  /* ---------- theme: Arasaka ---------- */
+  :root[data-theme="redline"] {
+    color-scheme: dark;
+    --bg: #060001;
+    --bg-glow: #2b0008;
+    --surface: #0b0002;
+    --line: #8a0a1e;
+    --ink: #ff4d66;
+    --muted: #e52b47;
+    --accent: #ff1f3d;
+    --on-accent: #060001;
+    --shadow: 0 0 14px rgb(255 0 40 / .22);
+    --sans: "Cascadia Mono", Consolas, "Courier New", monospace;
+    --serif: "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font: 15px/1.5 var(--sans);
+    color: var(--ink);
+    background:
+      radial-gradient(90vw 60vh at 50% -10%, var(--bg-glow), transparent 70%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  .bg-color body, .bg-image body { background: var(--bg); }
+  #bgimg {
+    display: none; position: fixed; inset: 0; z-index: -1;
+    background: center / cover no-repeat;
+  }
+  .bg-image #bgimg { display: block; }
+  #bgimg::after { content: ""; position: absolute; inset: 0; background: var(--bg); opacity: var(--dim); }
+
+  /* live sky: JS writes numbers (weights, positions), CSS mixes the colours */
+  .bg-sky body { background: var(--bg); }
+  :root.bg-sky { --muted: color-mix(in srgb, var(--ink) 82%, transparent); }   /* quiet text still has to read over a sky */
+  #sky { display: none; position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+  .bg-sky #sky { display: block; }
+  #sky > *, #clouds > * { position: absolute; }
+  #sky :is(.tint, #stars, #fx, #clouds, .veil, .fog, .flash, .skydim) { inset: 0; width: 100%; height: 100%; }
+  #sky :is(.tint, #stars, .sun, .moon, .veil, .fog) { transition: opacity 2s; }
+  .tint.night { background: linear-gradient(#04060e, #0b1124 55%, #1a2244); opacity: var(--night); }
+  .tint.dawn { background: linear-gradient(#27376a, #7c6c9e 45%, #f0a17d 80%, #ffd6a6); opacity: var(--dawn); }
+  .tint.day { background: linear-gradient(#3585d6, #78b4ea 55%, #cfe6f7); opacity: var(--day); }
+  .tint.dusk { background: linear-gradient(#1c2250, #6a3f7c 45%, #df6f5b 80%, #f7b46a); opacity: var(--dusk); }
+  .sun {
+    width: 240px; height: 240px; margin: -120px; border-radius: 50%;
+    background: radial-gradient(circle, rgb(255 249 228 / .95) 0 15%, rgb(255 228 160 / .4) 33%, transparent 68%);
+  }
+  .moon { width: 56px; height: 56px; margin: -28px; filter: drop-shadow(0 0 14px rgb(230 235 255 / .45)); }
+  .cloud { left: 0; border-radius: 50%; filter: blur(28px); background: var(--cloud-c); animation: drift linear infinite; }
+  @keyframes drift { from { translate: -70vw 0; } to { translate: 130vw 0; } }
+  .veil { background: var(--veil-c); }
+  .fog { background: linear-gradient(rgb(200 206 214 / .35), rgb(214 219 225 / .85)); }
+  .flash { background: #fff; opacity: 0; }
+  .skydim { background: var(--bg); opacity: var(--sky-dim); }
+  @media (prefers-reduced-motion: reduce) { .cloud { animation-play-state: paused; } }
+
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; background: none; border: 0; padding: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(32px, 11vh, 120px) 16px 48px;
+  }
+
+  .corner { position: fixed; top: 14px; right: 16px; display: flex; gap: 4px; z-index: 5; }
+  .corner button { padding: 6px 10px; border-radius: 8px; color: var(--muted); font-size: 13px; }
+  .corner button:hover { color: var(--ink); background: var(--surface); }
+
+  /* clock */
+  .w { position: relative; }
+  .w[data-w="clock"] { container-type: inline-size; text-align: center; }
+  .w[data-w="greet"] { margin-top: 12px; }
+  .w[data-w="search"] { margin-top: 36px; }
+  .w[data-w="shortcuts"], .w[data-w="today"] { margin-top: 44px; }
+  /* layout editing */
+  .w-x, .w-size, #lbar, #grid { display: none; }
+  .layout.snap #grid {
+    --g: color-mix(in srgb, var(--ink) 14%, transparent);
+    display: block; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(to right, var(--g) 1px, transparent 1px) 0 0 / 20px 20px,
+                linear-gradient(to bottom, var(--g) 1px, transparent 1px) 0 var(--gy, 0px) / 20px 20px;
+  }
+  .layout .w { outline: 1.5px dashed var(--muted); outline-offset: 8px; cursor: move; user-select: none; touch-action: none; }
+  .layout .w:hover { outline-color: var(--accent); }
+  .layout .w > *:not(.w-x, .w-size) { pointer-events: none; }
+  .layout .w-x {
+    display: grid; place-items: center; position: absolute; top: -19px; right: -19px; z-index: 2;
+    width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+    font-size: 15px; line-height: 1; text-shadow: none;
+  }
+  .layout .w-size {
+    display: block; position: absolute; right: -17px; bottom: -17px; z-index: 2; width: 20px; height: 20px;
+    border-right: 3px solid var(--accent); border-bottom: 3px solid var(--accent); cursor: nwse-resize;
+  }
+  .layout #lbar {
+    display: flex; position: fixed; left: 50%; bottom: 18px; translate: -50% 0; z-index: 30;
+    gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;
+    width: max-content; max-width: calc(100vw - 32px); padding: 8px 10px; font-size: 13px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 8px 30px rgb(0 0 0 / .25);
+  }
+  #lbar span { color: var(--muted); padding: 0 6px; }
+  #lbar .btn, #panel .check + .row .btn { padding: 5px 11px; font-size: 13px; }
+  #panel .check { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-size: 14px; }
+  #panel .check input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+  #clock {
+    font: 400 clamp(40px, 19.5cqw, 480px)/1 var(--serif);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums lining-nums;
+    display: inline-block;
+  }
+  #clock small { font-size: .2em; letter-spacing: .08em; margin-left: .4em; color: var(--muted); font-family: var(--sans); }
+  .sub { color: var(--muted); display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .sub b { color: var(--ink); font-weight: 500; }
+  #name { border-bottom: 1px dashed transparent; border-radius: 2px; padding: 0 2px; outline-offset: 3px; }
+  #name:hover, #name:focus { border-bottom-color: var(--muted); }
+
+  /* search */
+  .search {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 6px 8px 6px 18px;
+    box-shadow: var(--shadow);
+    transition: border-color .15s;
+  }
+  .search:focus-within { border-color: var(--accent); }
+  .search svg { flex: none; color: var(--muted); }
+  .search input { flex: 1; min-width: 0; height: 44px; border: 0; outline: 0; background: none; font-size: 17px; }
+  ::placeholder { color: var(--muted); opacity: 1; }
+  .search kbd { font: 12px var(--sans); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; }
+  .search:focus-within kbd { display: none; }
+
+  .seg { display: flex; gap: 4px; flex-wrap: wrap; }
+  .engines { margin-top: 10px; justify-content: center; }
+  .seg button { padding: 4px 12px; border-radius: 999px; font-size: 13px; color: var(--muted); }
+  .seg button:hover:not(:disabled) { color: var(--ink); }
+  .seg button:disabled { opacity: .4; cursor: default; }
+  .seg button[aria-pressed="true"] { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+  /* sections */
+  .head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  h2 { margin: 0; font: 600 12px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .head button { font-size: 13px; color: var(--muted); }
+  .head button:hover { color: var(--accent); }
+
+  /* shortcuts */
+  #tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .tile {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 16px 8px 12px;
+    border-radius: 14px; border: 1px solid transparent;
+    text-decoration: none; color: inherit; text-align: center;
+    transition: background .15s, border-color .15s, transform .15s;
+  }
+  .tile:hover { background: var(--surface); border-color: var(--line); transform: translateY(-2px); }
+  .mono {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center;
+    font: 600 19px var(--serif);
+    background: light-dark(hsl(var(--h) 60% 90%), hsl(var(--h) 45% 22%));
+    color: light-dark(hsl(var(--h) 65% 32%), hsl(var(--h) 70% 78%));
+  }
+  .mono { position: relative; }
+  /* icons are pinned to the tile's centre (absolute), so the hidden initial can't push them off */
+  .mono img { display: none; position: absolute; inset: 0; margin: auto; width: 28px; height: 28px; object-fit: contain; }
+  .mono .glyph {                                   /* icon-pack glyph: one colour, taken from the tile's text colour */
+    position: absolute; inset: 0; margin: auto; width: 24px; height: 24px; background: currentColor;
+    -webkit-mask: center / contain no-repeat; mask: center / contain no-repeat;
+  }
+  .mono.has-glyph, .mono.has-icon { font-size: 0 !important; }
+  .mono.has-icon { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }   /* original site icon replaces the initial */
+  /* some icons bring their own opaque square (GitHub, Claude): rounded corners make those read as app icons, not boxes */
+  .mono.has-icon img { display: block; border-radius: 7px !important; }
+  .tile span:last-child { font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tile.add .mono { background: none; border: 1.5px dashed var(--line); color: var(--muted); }
+  .editing .tile:not(.add) { border-color: var(--line); border-style: dashed; cursor: pointer; }
+  .tile.add { display: none; width: 100%; }
+  .editing .tile.add { display: flex; }
+
+  /* today list */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 6px 16px; }
+  #todos { list-style: none; margin: 0; padding: 0; }
+  #todos li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  #todos input { width: 17px; height: 17px; accent-color: var(--accent); flex: none; margin: 0; }
+  #todos label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  #todos li.done label { color: var(--muted); text-decoration: line-through; }
+  #todos li button { color: var(--muted); padding: 0 6px; font-size: 18px; line-height: 1; opacity: 0; }
+  #todos li:hover button, #todos li button:focus-visible { opacity: 1; }
+  #todos li button:hover { color: var(--accent); }
+  #todo-form input { width: 100%; height: 44px; border: 0; outline: 0; background: none; }
+
+  /* dialog + shared form bits */
+  dialog {
+    border: 1px solid var(--line); border-radius: 16px;
+    background: var(--surface); color: var(--ink);
+    padding: 22px; width: min(360px, calc(100vw - 32px));
+  }
+  dialog::backdrop { background: rgb(0 0 0 / .4); }
+  h3 { margin: 0 0 14px; font: 400 22px var(--serif); }
+  dialog label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .field {
+    display: block; width: 100%; height: 38px; padding: 0 10px;
+    border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink);
+  }
+  dialog .field { margin-top: 4px; }
+  .actions { display: flex; gap: 8px; margin-top: 18px; }
+  .btn { padding: 8px 14px; border-radius: 9px; border: 1px solid var(--line); font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn.danger { color: var(--accent); border-color: transparent; margin-right: auto; padding-left: 0; }
+
+  /* customise panel */
+  #panel {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 20;
+    width: min(340px, 100vw); padding: 20px 20px 32px; overflow-y: auto;
+    background: var(--surface); border-left: 1px solid var(--line);
+    box-shadow: -12px 0 40px rgb(0 0 0 / .18);
+    transform: translateX(105%); visibility: hidden;
+    transition: transform .2s, visibility .2s;
+  }
+  #panel.open { transform: none; visibility: visible; }
+  #panel .top { display: flex; justify-content: space-between; align-items: center; }
+  #panel .top h3 { margin: 0; }
+  #panel .top button { font-size: 22px; color: var(--muted); padding: 0 6px; }
+  #panel section { margin-top: 26px; }
+  #panel h2 { margin-bottom: 10px; }
+  #panel .row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  #panel .hint { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+  #panel input[type="color"] { width: 44px; height: 34px; padding: 2px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); cursor: pointer; }
+  #panel input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .themes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .themes button { border: 1px solid var(--line); border-radius: 12px; padding: 6px; font-size: 12px; text-align: center; }
+  .themes button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .swatch { height: 52px; border-radius: 8px; margin-bottom: 6px; display: grid; place-items: center; font-size: 20px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Material 3 Expressive extras ---------- */
+  [data-theme="material"] body { font-size: 16px; }
+  [data-theme="material"] :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  [data-theme="material"] :is(.search, #todo-form) input:focus-visible { outline: 0; }
+  [data-theme="material"] #clock { font-weight: 500; letter-spacing: -0.02em; }
+  [data-theme="material"] h3 { font-weight: 500; }
+  [data-theme="material"] .search {
+    background: var(--high); border: 2px solid transparent; border-radius: 999px; padding-left: 22px;
+    transition: border-radius .35s var(--ease), border-color .2s var(--ease);
+  }
+  [data-theme="material"] .search:focus-within { border-color: var(--accent); border-radius: 22px; }
+  [data-theme="material"] .search kbd { background: var(--highest); border: 0; border-radius: 10px; padding: 4px 10px; margin-right: 6px; }
+  [data-theme="material"] .engines { gap: 8px; margin-top: 14px; }
+  [data-theme="material"] .seg button {
+    border: 1px solid var(--line); border-radius: 8px; height: 32px; padding: 0 14px;
+    transition: border-radius .35s var(--ease), background .2s var(--ease);
+  }
+  [data-theme="material"] .seg button:hover:not(:disabled) { border-radius: 16px; }
+  [data-theme="material"] .seg button[aria-pressed="true"] { background: var(--sc); color: var(--on-sc); border-color: transparent; }
+  [data-theme="material"] .tile { border: 0; border-radius: 28px; transition: border-radius .35s var(--ease), background .2s var(--ease); }
+  [data-theme="material"] .tile:hover { transform: none; background: color-mix(in srgb, var(--ink) 6%, transparent); border-radius: 36px; }
+  [data-theme="material"] .editing .tile:not(.add) { outline: 2px dashed var(--line); outline-offset: -2px; }
+  [data-theme="material"] .mono {
+    width: 52px; height: 52px; background: none; color: var(--on-accent);
+    position: relative; isolation: isolate; font-weight: 500; font-size: 21px;
+  }
+  [data-theme="material"] .mono::before {          /* cookie-cutter shape that morphs and turns on hover */
+    content: ""; position: absolute; inset: 0; z-index: -1; background: var(--accent);
+    clip-path: var(--sa); transition: clip-path .7s var(--spring), rotate .7s var(--spring);
+  }
+  [data-theme="material"] .tile:hover .mono::before { clip-path: var(--sb); rotate: 24deg; }
+  [data-theme="material"] .tile:nth-child(3n+2) .mono { color: var(--on-pc); }
+  [data-theme="material"] .tile:nth-child(3n+2) .mono::before { background: var(--pc); }
+  [data-theme="material"] .tile:nth-child(3n) .mono { color: var(--on-tc); }
+  [data-theme="material"] .tile:nth-child(3n) .mono::before { background: var(--tc); }
+  [data-theme="material"] .mono.has-icon { font-size: 0; background: none; box-shadow: none; }
+  [data-theme="material"] .tile .mono.has-icon::before { background: var(--highest) !important; }
+  [data-theme="material"] .mono.has-icon img { width: 26px; height: 26px; }
+  [data-theme="material"] .mono .glyph { width: 26px; height: 26px; }
+  [data-theme="material"] .tile.add .mono { border: 0; color: var(--muted); }
+  [data-theme="material"] .tile.add .mono::before { background: var(--high); }
+  [data-theme="material"] .card { border: 0; border-radius: 28px; padding: 10px 22px; }
+  [data-theme="material"] .btn {
+    border: 0; border-radius: 999px; background: var(--sc); color: var(--on-sc);
+    min-height: 40px; padding: 0 18px; font-weight: 500;
+    transition: border-radius .3s var(--spring), scale .3s var(--spring);
+  }
+  [data-theme="material"] .btn:active { border-radius: 12px; scale: .97; }
+  [data-theme="material"] .btn.primary { background: var(--accent); color: var(--on-accent); }
+  [data-theme="material"] .btn.danger { background: none; color: var(--accent); padding-left: 0; }
+  [data-theme="material"] .corner { gap: 8px; }
+  [data-theme="material"] .corner button {
+    border-radius: 999px; height: 36px; padding: 0 14px; background: var(--high); color: var(--ink);
+    transition: border-radius .3s var(--spring);
+  }
+  [data-theme="material"] .corner button:active { border-radius: 12px; }
+  [data-theme="material"] dialog { background: var(--high); border: 0; border-radius: 28px; padding: 24px; }
+  [data-theme="material"] #panel { background: var(--high); border: 0; border-radius: 28px 0 0 28px; }
+  [data-theme="material"] .field { background: var(--surface); border-radius: 20px; height: 44px; padding: 0 16px; }
+  [data-theme="material"] .themes button { border-radius: 20px; }
+  [data-theme="material"] .swatch { border-radius: 14px; }
+  [data-theme="material"] #lbar { border: 0; background: var(--highest); border-radius: 28px; padding: 10px 14px; }
+
+  /* ---------- Persona 5 extras: red / black / white, cut paper, ransom-note lettering ---------- */
+  [data-theme="ransom"] * { border-radius: 0 !important; }
+  [data-theme="ransom"] body { font-weight: 600; }
+  [data-theme="ransom"] #clock {
+    font-style: italic; font-weight: 400; letter-spacing: .01em; color: #0a0a0a; rotate: -5deg;
+    -webkit-text-stroke: .09em #fff; paint-order: stroke fill;
+    filter: drop-shadow(.05em .05em 0 #0a0a0a);
+  }
+  [data-theme="ransom"] #clock small {
+    font-style: normal; -webkit-text-stroke: 0; color: #fff; background: #0a0a0a;
+    padding: .1em .35em; display: inline-block; rotate: 8deg; font-family: var(--serif);
+  }
+  [data-theme="ransom"] .sub {
+    width: fit-content; margin-inline: auto; background: #0a0a0a; color: #fff; padding: 5px 18px;
+    transform: skewX(-10deg) rotate(-1.5deg); text-transform: uppercase; letter-spacing: .04em; box-shadow: 5px 5px 0 #fff;
+  }
+  [data-theme="ransom"] .sub b { color: #ff3b3b; font-weight: 800; }
+  [data-theme="ransom"] .search {
+    --muted: #555; background: #fff; color: #0a0a0a; border: 4px solid #0a0a0a;
+    transform: skewX(-6deg) rotate(.6deg); box-shadow: 9px 9px 0 #0a0a0a; transition: box-shadow .12s;
+  }
+  [data-theme="ransom"] .search:focus-within { border-color: #0a0a0a; box-shadow: 14px 14px 0 #0a0a0a; }
+  [data-theme="ransom"] .search input { font-weight: 700; }
+  [data-theme="ransom"] .search kbd { border-color: #0a0a0a; color: #0a0a0a; }
+  [data-theme="ransom"] .engines { margin-top: 22px; gap: 8px; }
+  [data-theme="ransom"] .seg button {
+    background: #0a0a0a; color: #fff; border: 2px solid #fff; padding: 3px 14px;
+    transform: skewX(-10deg); text-transform: uppercase; font-weight: 800; letter-spacing: .03em;
+  }
+  [data-theme="ransom"] .seg button:nth-child(even) { rotate: 2deg; }
+  [data-theme="ransom"] .seg button:nth-child(odd) { rotate: -2deg; }
+  [data-theme="ransom"] .seg button[aria-pressed="true"] { background: #fff; color: #0a0a0a; border-color: #0a0a0a; scale: 1.12; }
+  [data-theme="ransom"] h2 { font-size: 15px; letter-spacing: 0; color: #fff; }
+  [data-theme="ransom"] :is(h2, h3) .r {            /* each letter is its own cut-out */
+    display: inline-block; padding: 0 .2em; margin-right: 1px; line-height: 1.25; rotate: var(--rot);
+    font: 400 1.45em Impact, Haettenschweiler, sans-serif; text-transform: uppercase; background: #0a0a0a; color: #fff;
+  }
+  [data-theme="ransom"] :is(h2, h3) .r1 { background: #fff; color: #0a0a0a; font: 700 1.5em Georgia, serif; text-transform: lowercase; }
+  [data-theme="ransom"] :is(h2, h3) .r2 { font: 900 1.25em "Arial Black", sans-serif; }
+  [data-theme="ransom"] :is(h2, h3) .r3 { background: #fff; color: #0a0a0a; }
+  [data-theme="ransom"] h2 .r { outline: 2px solid #0a0a0a; }
+  [data-theme="ransom"] h3 { font-size: 15px; }
+  [data-theme="ransom"] .head button { background: #0a0a0a; color: #fff; padding: 2px 12px; transform: skewX(-10deg); text-transform: uppercase; font-weight: 800; }
+  [data-theme="ransom"] .head button:hover { background: #fff; color: #0a0a0a; }
+  [data-theme="ransom"] .tile { transition: none; }
+  [data-theme="ransom"] .tile:hover { background: none; border-color: transparent; transform: none; }
+  [data-theme="ransom"] .mono {
+    width: 50px; height: 50px; background: #0a0a0a; color: #fff; border: 3px solid #fff; box-shadow: 4px 4px 0 #0a0a0a;
+    font: 400 26px var(--serif); rotate: -7deg; transition: rotate .15s, scale .15s;
+  }
+  [data-theme="ransom"] .tile:nth-child(even) .mono { rotate: 6deg; background: #fff; color: #0a0a0a; border-color: #0a0a0a; }
+  [data-theme="ransom"] .tile:nth-child(3n) .mono { rotate: -3deg; }
+  [data-theme="ransom"] .tile:hover .mono { rotate: 10deg; scale: 1.18; background: #fff; color: #d10a0a; border-color: #0a0a0a; }
+  [data-theme="ransom"] .tile .mono.has-icon { font-size: 0; background: #fff; border-color: #0a0a0a; }
+  [data-theme="ransom"] .mono.has-icon { filter: grayscale(1) contrast(1.35); }  /* icons join the black-and-white cut-outs */
+  [data-theme="ransom"] .tile:hover .mono.has-icon { filter: none; }
+  [data-theme="ransom"] .tile span:last-child { text-transform: uppercase; font-weight: 800; text-shadow: 2px 2px 0 #0a0a0a; }
+  [data-theme="ransom"] .tile.add .mono { border: 3px dashed #fff; background: none; color: #fff; }
+  [data-theme="ransom"] .editing .tile:not(.add) { border-color: #fff; }
+  [data-theme="ransom"] .card { border: 0; rotate: -1deg; box-shadow: 0 0 0 4px #fff, 12px 12px 0 4px #0a0a0a; }
+  [data-theme="ransom"] #todos li { border-bottom: 2px dashed rgb(255 255 255 / .3); }
+  [data-theme="ransom"] .btn {
+    background: #0a0a0a; color: #fff; border: 2px solid #fff; transform: skewX(-10deg);
+    text-transform: uppercase; font-weight: 800; letter-spacing: .03em;
+  }
+  [data-theme="ransom"] .btn:hover, [data-theme="ransom"] .btn.primary { background: #fff; color: #0a0a0a; border-color: #fff; }
+  [data-theme="ransom"] .btn.primary:hover { background: #d10a0a; color: #fff; }
+  [data-theme="ransom"] .btn.danger { border-color: transparent; color: #ff3b3b; }
+  [data-theme="ransom"] .corner { gap: 8px; }
+  [data-theme="ransom"] .corner button { background: #0a0a0a; color: #fff; border: 2px solid #fff; transform: skewX(-10deg); text-transform: uppercase; font-weight: 800; }
+  [data-theme="ransom"] .corner button:hover { background: #fff; color: #0a0a0a; }
+  [data-theme="ransom"] dialog { border: 4px solid #fff; rotate: -1.5deg; box-shadow: 14px 14px 0 #d10a0a; }
+  [data-theme="ransom"] #panel { border-left: 6px solid #fff; }
+  [data-theme="ransom"] .field { background: #fff; color: #0a0a0a; border: 0; font-weight: 700; }
+  [data-theme="ransom"] .field::placeholder { color: #666; }
+  [data-theme="ransom"] .themes button { border: 2px solid #fff; }
+  [data-theme="ransom"] .themes button[aria-pressed="true"] { background: #fff; color: #0a0a0a; box-shadow: none; }
+  [data-theme="ransom"] #lbar { border: 3px solid #fff; rotate: -1deg; }
+  [data-theme="ransom"] #lbar span { color: #fff; }
+  @media (min-width: 1150px) {
+    [data-theme="ransom"]:not(.bg-image, .bg-sky) .deco.p5 { display: block; position: fixed; z-index: -1; }
+    .p5.slash-w, .p5.slash {                          /* torn black wedge with a white edge */
+      right: 0; bottom: 0; width: 44vw; height: 62vh; background: #0a0a0a;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%, 20% 80%, 13% 75%, 43% 53%, 36% 47%, 72% 23%, 65% 16%);
+    }
+    .p5.slash-w { background: #fff; translate: -14px -12px; }
+    .p5.stars { top: -16vmin; left: -14vmin; width: 62vmin; height: 62vmin; rotate: -14deg; }
+    .p5.stars i {
+      position: absolute; inset: calc(var(--i) * 7%); background: #0a0a0a;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+    .p5.stars i:nth-child(even) { background: #fff; }
+    .p5.dots {                                        /* halftone fade */
+      left: 0; bottom: 0; width: 38vw; height: 46vh;
+      background: radial-gradient(#0a0a0a 36%, transparent 39%) 0 0 / 16px 16px;
+      mask-image: linear-gradient(to top right, #000, transparent 62%); opacity: .4;
+    }
+  }
+
+  /* ---------- Arasaka extras ---------- */
+  .deco { display: none; }
+  [data-theme="redline"] * { border-radius: 0 !important; }
+  [data-theme="redline"] body { text-shadow: 0 0 7px rgb(255 30 60 / .45); }
+  [data-theme="redline"] body::after {            /* CRT scanlines */
+    content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / .3) 2px 3px);
+  }
+  [data-theme="redline"] #clock { font-weight: 700; letter-spacing: 0; }
+  [data-theme="redline"] h2 { color: var(--ink); }
+  [data-theme="redline"] h2::before { content: "// "; }
+  [data-theme="redline"] h3 { font-weight: 700; text-transform: uppercase; font-size: 17px; letter-spacing: .08em; }
+  [data-theme="redline"] :is(.sub, .tile span:last-child, .seg button, .head button, .corner button, .btn) { text-transform: uppercase; letter-spacing: .04em; }
+  [data-theme="redline"] .mono { background: none; border: 1px solid var(--line); color: var(--ink); font-weight: 700; }
+  [data-theme="redline"] .mono.has-icon { font-size: 0; background: none; box-shadow: none; }
+  [data-theme="redline"] .mono.has-icon { filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(6) brightness(.95); }   /* icons in terminal red */
+  [data-theme="redline"] .tile:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+  [data-theme="redline"] .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); text-shadow: none; }
+  [data-theme="redline"] .btn.primary { text-shadow: none; }
+  [data-theme="redline"] .corner button { background: var(--bg); border: 1px solid var(--line); }
+  [data-theme="redline"] .search kbd { border-color: var(--line); }
+  @media (min-width: 1150px) {
+    [data-theme="redline"]:not(.bg-image, .bg-sky) .deco.ara { display: block; position: fixed; z-index: -1; }
+    .deco.left {
+      inset: 0 auto 0 0; width: clamp(130px, 14vw, 220px);
+      background: repeating-linear-gradient(to bottom, #a30d24 0 4px, #3d000a 4px 8px);
+      border-right: 12px solid #060001; box-shadow: 13px 0 0 #8a0a1e;
+    }
+    .deco.left span {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      writing-mode: vertical-rl; text-shadow: none;
+      font: 900 clamp(64px, 8vw, 120px)/1 Impact, "Arial Black", sans-serif;
+      letter-spacing: .04em; color: #060001;
+    }
+    .deco.wedge {
+      top: 0; right: 0; width: 42vw; height: 30vh;
+      background: repeating-linear-gradient(to bottom, #7a0a1c 0 4px, #2a0006 4px 8px);
+      clip-path: polygon(35% 0, 100% 0, 100% 100%);
+    }
+    .deco.kana {
+      right: 34px; bottom: 40px; writing-mode: vertical-rl; text-shadow: 0 0 10px rgb(255 30 60 / .5);
+      font: 700 52px/1.1 "Yu Gothic UI", "Meiryo", "Hiragino Sans", sans-serif; color: #b3122d;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="bgimg"></div>
+<div id="sky" aria-hidden="true">
+  <div class="tint night"></div><div class="tint dawn"></div><div class="tint day"></div><div class="tint dusk"></div>
+  <canvas id="stars"></canvas>
+  <div class="sun"></div>
+  <svg class="moon" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="rgb(255 255 255 / .07)"/><path id="moon-lit" fill="#eceadf"/></svg>
+  <div id="clouds"></div>
+  <div class="veil"></div><div class="fog"></div>
+  <canvas id="fx"></canvas>
+  <div class="flash"></div><div class="skydim"></div>
+</div>
+<div class="deco ara left" aria-hidden="true"><span>TERMINAL</span></div>
+<div class="deco ara wedge" aria-hidden="true"></div>
+<div class="deco ara kana" aria-hidden="true">ホーム端末</div>
+<div class="deco p5 dots" aria-hidden="true"></div>
+<div class="deco p5 stars" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i></div>
+<div class="deco p5 slash-w" aria-hidden="true"></div>
+<div class="deco p5 slash" aria-hidden="true"></div>
+<div id="grid" aria-hidden="true"></div>
+
+<div class="corner">
+  <button id="fmt" title="Switch 12/24-hour clock">24h</button>
+  <button id="corner-reset" title="Put everything back where it started" hidden>Reset layout</button>
+  <button id="layout-btn" title="Move, resize or remove things">Layout</button>
+  <button id="open-panel">Customise</button>
+</div>
+
+<main>
+  <div class="w" data-w="clock"><div id="clock" aria-live="off"></div></div>
+
+  <div class="w" data-w="greet">
+    <div class="sub">
+      <span><span id="greet"></span>, <b id="name" contenteditable="plaintext-only" spellcheck="false" title="Click to change your name"></b></span>
+      <span>·</span>
+      <span id="date"></span>
+    </div>
+  </div>
+
+  <div class="w" data-w="search">
+    <form class="search" id="search" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" autocomplete="off" autofocus spellcheck="false" aria-label="Search or enter address">
+      <kbd>/</kbd>
+    </form>
+    <div class="seg engines" id="engines"></div>
+  </div>
+
+  <div class="w" data-w="shortcuts">
+    <section id="shortcuts">
+      <div class="head">
+        <h2>Shortcuts</h2>
+        <button id="edit">Edit</button>
+      </div>
+      <div id="tiles"></div>
+    </section>
+  </div>
+
+  <div class="w" data-w="today">
+    <section>
+      <div class="head">
+        <h2>Today <span id="left"></span></h2>
+        <button id="clear" hidden>Clear done</button>
+      </div>
+      <div class="card">
+        <ul id="todos"></ul>
+        <form id="todo-form"><input id="todo-in" placeholder="Add something to do…" aria-label="Add a to-do" autocomplete="off"></form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="lbar">
+  <span>Drag to move · pull a corner to resize · × to remove</span>
+  <div id="lbar-add" style="display:contents"></div>
+  <button class="btn" id="lbar-snap" title="Snap to a 20px grid. Hold Alt while dragging to bypass.">Snap: on</button>
+  <button class="btn" id="lbar-reset">Reset layout</button>
+  <button class="btn primary" id="lbar-done">Done</button>
+</div>
+
+<aside id="panel" aria-label="Customise">
+  <div class="top"><h3>Customise</h3><button id="close-panel" aria-label="Close">×</button></div>
+
+  <section>
+    <h2>Theme</h2>
+    <div class="themes" id="themes"></div>
+    <div class="seg row" id="modes"></div>
+  </section>
+
+  <section>
+    <h2>Layout</h2>
+    <div id="w-checks"></div>
+    <label class="check" style="margin-top:8px"><input type="checkbox" id="snap-check">Snap to grid when moving</label>
+    <div class="row"><span class="hint" style="margin:0">Shortcut icons</span>
+      <select id="icons-style" class="field" style="flex:1;width:auto" aria-label="Shortcut icon style">
+        <option value="pack">Themed (icon pack)</option><option value="site">Original site icons</option><option value="letters">Letters</option>
+      </select></div>
+    <div class="row"><button class="btn" id="panel-layout">Move &amp; resize…</button><button class="btn" id="panel-reset-layout">Reset layout</button></div>
+  </section>
+
+  <section>
+    <h2>Font</h2>
+    <select id="font" class="field">
+      <option value="">Theme default</option>
+      <option value="sans">System sans</option>
+      <option value="serif">Serif</option>
+      <option value="mono">Monospace</option>
+      <option value="din">Bahnschrift (condensed)</option>
+      <option value="custom">Custom…</option>
+    </select>
+    <div class="row" id="font-custom-row"><input id="font-custom" class="field" placeholder="Any font installed on this PC" spellcheck="false"></div>
+  </section>
+
+  <section>
+    <h2>Accent colour</h2>
+    <div class="row"><input type="color" id="accent" aria-label="Accent colour"><button class="btn" id="accent-reset">Use theme colour</button></div>
+  </section>
+
+  <section>
+    <h2>Background</h2>
+    <div class="seg" id="bgtypes"></div>
+    <div class="row" id="bg-color-row"><input type="color" id="bg-color" aria-label="Background colour"><span class="hint" style="margin:0">Text switches light/dark to match.</span></div>
+    <div id="bg-image-rows">
+      <div class="row"><button class="btn" id="bg-pick">Choose image…</button><button class="btn" id="bg-remove">Remove</button></div>
+      <input type="file" id="bg-file" accept="image/*" hidden>
+      <div class="row"><input id="bg-url" class="field" placeholder="…or paste an image address" spellcheck="false"></div>
+      <div class="row"><span class="hint" style="margin:0">Dim</span><input type="range" id="dim" min="0" max="90" aria-label="Dim background image"></div>
+      <p class="hint" id="bg-msg"></p>
+    </div>
+    <div id="bg-sky-rows">
+      <div class="row"><input id="sky-city" class="field" placeholder="City, e.g. Mumbai" spellcheck="false" aria-label="City for sun times and weather"></div>
+      <div class="row"><button class="btn" id="sky-here">Use my location</button></div>
+      <div class="row"><span class="hint" style="margin:0">Weather</span>
+        <select id="sky-wx" class="field" style="flex:1;width:auto" aria-label="Weather shown">
+          <option value="live">Live</option><option value="clear">Clear</option><option value="cloudy">Cloudy</option>
+          <option value="overcast">Overcast</option><option value="fog">Fog</option><option value="rain">Rain</option>
+          <option value="storm">Storm</option><option value="snow">Snow</option>
+        </select></div>
+      <div class="row"><span class="hint" style="margin:0">Dim</span><input type="range" id="sky-dim" min="0" max="80" aria-label="Dim sky"></div>
+      <p class="hint" id="sky-msg"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Share setup</h2>
+    <div class="row"><button class="btn" id="export">Export…</button><button class="btn" id="import">Import…</button></div>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <p class="hint" id="share-msg">Saves your theme, layout, shortcuts and background to a file a friend can import. Your name, to-dos and city are left out.</p>
+  </section>
+
+  <section><button class="btn" id="reset">Reset appearance</button></section>
+</aside>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlg-form">
+    <h3 id="dlg-title">Add shortcut</h3>
+    <label>Name<input id="s-name" class="field" required maxlength="30"></label>
+    <label>Address<input id="s-url" class="field" required placeholder="example.com" inputmode="url"></label>
+    <div class="actions">
+      <button type="button" class="btn danger" id="s-del">Remove</button>
+      <button type="button" class="btn" id="s-cancel">Cancel</button>
+      <button class="btn primary" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('home.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('home.' + k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k) { try { localStorage.removeItem('home.' + k); } catch {} }
+};
+
+/* ---------- appearance ---------- */
+const R = document.documentElement;
+const THEMES = [
+  { id: 'paper',   name: 'Paper',   bg: '#f3efe6', fg: '#c8501e', font: 'Georgia, serif' },
+  { id: 'slate',   name: 'Slate',   bg: '#0f1318', fg: '#7fb0ff', font: 'system-ui, sans-serif' },
+  { id: 'material', name: 'Material 3', bg: '#ffdbd2', fg: '#8f4b39', font: '"Google Sans Flex", "Google Sans", Roboto, sans-serif' },
+  { id: 'ransom', name: 'Persona 5', bg: 'linear-gradient(115deg, #cf0a0a 62%, #fff 62% 66%, #0a0a0a 66%)', fg: '#fff', font: 'Impact, sans-serif' },
+  { id: 'redline', name: 'Arasaka', bg: 'repeating-linear-gradient(#060001 0 3px, #3d000a 3px 4px)', fg: '#ff1f3d', font: 'Consolas, monospace' }
+];
+const iconMode = () => cfg.icons === false || cfg.icons === 'letters' ? 'letters' : cfg.icons === 'site' ? 'site' : 'pack';
+const FIXED_MODE = ['redline', 'ransom'];      // themes with one colour scheme only
+/* Wrap heading letters so a theme can style each one (Persona's ransom-note lettering). Plain text in other themes. */
+function ransom(el) {
+  const rot = [-6, 4, -3, 7, -2, 5, -5, 3];
+  let i = 0;
+  if (!el.children.length) el.setAttribute('aria-label', el.textContent.trim());   // read as a word, not letter by letter
+  for (const node of [...el.childNodes]) {
+    if (node.nodeType !== 3 || !node.textContent.trim()) continue;
+    const frag = document.createDocumentFragment();
+    for (const ch of node.textContent) {
+      if (ch === ' ') { frag.append(' '); continue; }
+      const s = document.createElement('span'); s.className = 'r r' + i % 4; s.textContent = ch;
+      s.style.setProperty('--rot', rot[i++ % rot.length] + 'deg');
+      frag.append(s);
+    }
+    node.replaceWith(frag);
+  }
+}
+document.querySelectorAll('h2, h3').forEach(ransom);
+const FONTS = {
+  sans: 'system-ui, "Segoe UI", Roboto, sans-serif',
+  serif: '"Iowan Old Style", "Palatino Linotype", Georgia, serif',
+  mono: '"Cascadia Mono", Consolas, "Courier New", monospace',
+  din: 'Bahnschrift, "DIN Alternate", "Segoe UI", sans-serif'
+};
+const DEFAULTS = { theme: 'paper', mode: 'auto', font: '', customFont: '', accent: '', bg: 'theme', bgColor: '#1d2330', bgUrl: '', dim: 50, loc: null, skyWx: 'live', skyDim: 15 };
+const oldMode = store.get('theme', 'auto');
+let cfg = { ...DEFAULTS, mode: ['auto', 'light', 'dark'].includes(oldMode) ? oldMode : 'auto', ...store.get('cfg', {}) };
+const LEGACY = { arasaka: 'redline', persona: 'ransom' }; // legacy-ids: settings saved before the theme ids changed
+cfg.theme = LEGACY[cfg.theme] || cfg.theme;
+let bgData = store.get('bgimg', '');
+
+/* ---------- live sky ---------- */
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const WX = { clear: {}, cloudy: { cloud: .5 }, overcast: { cloud: 1 }, fog: { cloud: .4, fog: true }, rain: { cloud: .9, rain: 2 },
+             storm: { cloud: 1, rain: 3, storm: true }, snow: { cloud: .85, snow: true } };
+const wmo = c =>          // WMO weather code -> [label, what to draw]
+  c === 0 ? ['clear', {}] : c <= 2 ? ['partly cloudy', { cloud: c * .25 }] : c === 3 ? ['overcast', WX.overcast] :
+  c <= 48 ? ['fog', WX.fog] : c <= 57 ? ['drizzle', { cloud: .8, rain: 1 }] :
+  c <= 67 ? ['rain', { cloud: .9, rain: c === 61 ? 1 : c === 65 ? 3 : 2 }] : c <= 77 ? ['snow', WX.snow] :
+  c <= 82 ? ['showers', { cloud: .85, rain: c - 79 }] : c <= 86 ? ['snow showers', WX.snow] : ['thunderstorm', WX.storm];
+let wx = store.get('wx', null), skyLight = false, skyNow = {}, skyMsg = '', lastTry = 0, flashT = 0, fxRun = false, drops = [];
+const locKey = () => cfg.loc ? cfg.loc.lat + ',' + cfg.loc.lon : '';
+const liveWx = () => wx && cfg.loc && wx.key === locKey() ? wx : null;
+const DAY = 864e5;
+const rnd = (seed => () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; })(136);
+
+const STARS = Array.from({ length: 110 }, () => [rnd(), rnd() * .8, .4 + rnd() * .9, .35 + rnd() * .65]);   // same sky every visit
+function drawStars() {
+  const c = $('stars'), g = c.getContext('2d');
+  c.width = innerWidth; c.height = innerHeight; g.fillStyle = '#fff';
+  for (const [x, y, r, a] of STARS) { g.globalAlpha = a; g.beginPath(); g.arc(x * c.width, y * c.height, r, 0, 7); g.fill(); }
+}
+drawStars(); addEventListener('resize', drawStars);
+$('clouds').append(...Array.from({ length: 10 }, () => {
+  const d = document.createElement('div'); d.className = 'cloud';
+  const dur = 150 + rnd() * 120;
+  d.style.cssText = `top:${(rnd() * 50 - 4).toFixed(1)}vh;width:${(28 + rnd() * 30).toFixed(1)}vw;height:${(11 + rnd() * 10).toFixed(1)}vh;animation-duration:${dur.toFixed(0)}s;animation-delay:-${(rnd() * dur).toFixed(0)}s`;
+  return d;
+}));
+
+function sunTimes(now) {
+  const w = liveWx();
+  if (!w) { const d = new Date(now); return [d.setHours(6, 15, 0, 0), d.setHours(18, 30, 0, 0)]; }
+  const k = Math.round((now - (w.sr + w.ss) / 2) / DAY) * DAY;      // cached times, shifted to the nearest day
+  return [w.sr + k, w.ss + k];
+}
+function paintSky(now = Date.now()) {
+  const [sr, ss] = sunTimes(now), m = 6e4;
+  const a = sr - 75 * m, b = sr + 30 * m, c = ss - 90 * m, e = ss + 40 * m;
+  const f = (x, lo, hi) => Math.min(1, Math.max(0, (x - lo) / (hi - lo)));
+  let night = 0, dawn = 0, day = 0, dusk = 0;
+  if (now < a || now >= e) night = 1;
+  else if (now < sr) { dawn = f(now, a, sr); night = 1 - dawn; }
+  else if (now < b) { day = f(now, sr, b); dawn = 1 - day; }
+  else if (now < c) day = 1;
+  else if (now < ss) { dusk = f(now, c, ss); day = 1 - dusk; }
+  else { night = f(now, ss, e); dusk = 1 - night; }
+
+  const w = liveWx();
+  const st = { cloud: 0, rain: 0, ...(cfg.skyWx !== 'live' ? WX[cfg.skyWx] : w ? wmo(w.code)[1] : {}) };
+  if (cfg.skyWx === 'live' && w) st.cloud = Math.max(st.cloud, w.cloud / 100);
+  skyNow = st;
+
+  const sky = $('sky'), S = sky.style, q = s => sky.querySelector(s);
+  S.setProperty('--night', night); S.setProperty('--dawn', dawn); S.setProperty('--day', day); S.setProperty('--dusk', dusk);
+  $('stars').style.opacity = night * (1 - st.cloud * .9);
+
+  const arc = (el, p, op) => {                        // rises left, peaks mid-sky, sets right
+    el.style.left = 8 + 84 * p + '%'; el.style.top = 80 - 64 * Math.sin(Math.PI * p) + '%';
+    el.style.opacity = p < 0 || p > 1 ? 0 : op;
+  };
+  arc(q('.sun'), (now - sr) / (ss - sr), (1 - night) * (1 - st.cloud * .85));
+  const np = now >= ss ? (now - ss) / (sr + DAY - ss) : (now - (ss - DAY)) / (sr - (ss - DAY));
+  arc(q('.moon'), np, (night + .3 * (dawn + dusk)) * (1 - st.cloud * .8));
+  const ph = ((now - 947182440000) / (29.530588853 * DAY)) % 1, g = ph > .5 ? 1 - ph : ph;   // 0 new, .5 full
+  $('moon-lit').setAttribute('d', `M50 0A50 50 0 0 1 50 100A${Math.abs(Math.cos(2 * Math.PI * g)) * 50} 50 0 0 ${g < .25 ? 0 : 1} 50 0Z`);
+  $('moon-lit').setAttribute('transform', ph > .5 ? 'translate(100 0) scale(-1 1)' : '');
+
+  const glow = dawn + dusk, mix = (n, d, w2) => Math.round(n * night + d * day + w2 * glow);
+  const heavy = st.cloud > .7 ? .82 : 1;             // rain clouds are greyer
+  S.setProperty('--cloud-c', `rgb(${mix(52, 255 * heavy, 255)} ${mix(60, 255 * heavy, 196)} ${mix(86, 255 * heavy, 170)} / ${.55 + st.cloud * .3})`);
+  S.setProperty('--veil-c', `rgb(${mix(16, 138, 110)} ${mix(20, 146, 100)} ${mix(32, 158, 118)})`);
+  [...$('clouds').children].forEach((el, i) => el.style.display = i < Math.round(st.cloud * 10) ? '' : 'none');
+  q('.veil').style.opacity = Math.min(.7, Math.max(0, st.cloud - .55) * 1.5);
+  q('.fog').style.opacity = st.fog ? .85 : 0;
+
+  if ((st.rain || st.snow) && !fxRun) { fxRun = true; requestAnimationFrame(fxLoop); }
+  if (st.storm && !flashT && !reduceMotion.matches) flashT = setTimeout(() => {      // lightning every 7–21s, storms only
+    flashT = 0;
+    if (skyNow.storm && cfg.bg === 'sky' && !document.hidden)
+      q('.flash').animate([{ opacity: 0 }, { opacity: .75 }, { opacity: .1 }, { opacity: .5 }, { opacity: 0 }], { duration: 520 });
+    if (cfg.bg === 'sky') paintSky();
+  }, 7000 + Math.random() * 14000);
+  skyLight = day > .5;
+}
+function fxLoop() {                                   // rain and snow
+  const st = skyNow, c = $('fx'), g = c.getContext('2d');
+  if (c.width !== innerWidth || c.height !== innerHeight) { c.width = innerWidth; c.height = innerHeight; } else g.clearRect(0, 0, c.width, c.height);
+  if (cfg.bg !== 'sky' || !(st.rain || st.snow) || reduceMotion.matches || document.hidden) { fxRun = false; return; }
+  const n = st.snow ? 150 : [0, 90, 220, 420][st.rain], W = c.width, H = c.height;
+  while (drops.length < n) drops.push({ x: Math.random() * 1.2 - .2, y: Math.random(), v: .6 + Math.random() * .6 });
+  drops.length = n;
+  g.strokeStyle = 'rgb(205 218 238 / .45)'; g.fillStyle = 'rgb(255 255 255 / .85)'; g.lineWidth = 1; g.beginPath();
+  for (const d of drops) {
+    if (st.snow) { d.y += d.v * .0022; d.x += Math.sin(d.y * 18 + d.v * 40) * .0005; }
+    else { d.y += d.v * .026; d.x += d.v * .026 * H * .21 / W; }                    // slanted 12°
+    if (d.y > 1.05) { d.y = -.05; d.x = Math.random() * 1.2 - .2; }
+    const x = d.x * W, y = d.y * H, len = 12 + d.v * 14;
+    if (st.snow) { g.moveTo(x + 2, y); g.arc(x, y, .8 + d.v * 1.6, 0, 7); } else { g.moveTo(x, y); g.lineTo(x + len * .21, y + len); }
+  }
+  st.snow ? g.fill() : g.stroke();
+  requestAnimationFrame(fxLoop);
+}
+async function loadWeather(force) {
+  if (cfg.bg !== 'sky' || !cfg.loc) return;
+  const now = Date.now();
+  if (!force && (liveWx() && now - wx.t < 20 * 6e4 || now - lastTry < 5 * 6e4)) return;
+  lastTry = now;
+  try {
+    const u = `https://api.open-meteo.com/v1/forecast?latitude=${cfg.loc.lat}&longitude=${cfg.loc.lon}&current=temperature_2m,weather_code,cloud_cover&daily=sunrise,sunset&timezone=auto&forecast_days=1`;
+    const j = await (await fetch(u)).json(), off = j.utc_offset_seconds * 1000, tm = s => Date.parse(s + ':00Z') - off;
+    wx = { t: now, key: locKey(), code: j.current.weather_code, cloud: j.current.cloud_cover,
+           temp: Math.round(j.current.temperature_2m) + j.current_units.temperature_2m, sr: tm(j.daily.sunrise[0]), ss: tm(j.daily.sunset[0]) };
+    store.set('wx', wx); skyMsg = '';
+  } catch { skyMsg = 'Weather is unavailable right now. '; }
+  applyLook(); syncPanel();
+}
+setInterval(() => { if (cfg.bg === 'sky') { applyLook(); loadWeather(); } }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && cfg.bg === 'sky') { applyLook(); loadWeather(); } });
+
+const lum = hex => {
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(c => c <= .04 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4);
+  return .2126 * r + .7152 * g + .0722 * b;
+};
+/* Material shapes: 96-point polygons that all start at (100%, 50%), so clip-path can morph between any two */
+const SHAPES = { circle: [1, 0], cookie9: [9, .13], flower8: [8, .24], soft6: [6, .11], cookie12: [12, .1], clover4: [4, .3], burst10: [10, .18] };
+for (const [name, [n, depth]] of Object.entries(SHAPES)) {
+  const pts = Array.from({ length: 96 }, (_, i) => {
+    const t = i / 96 * 2 * Math.PI, r = 1 - depth * (1 - Math.cos(n * t)) / 2;
+    return `${(50 + 50 * r * Math.cos(t)).toFixed(2)}% ${(50 + 50 * r * Math.sin(t)).toFixed(2)}%`;
+  });
+  R.style.setProperty('--shape-' + name, `polygon(${pts.join(',')})`);
+}
+const SHAPE_ORDER = ['cookie9', 'flower8', 'soft6', 'cookie12', 'clover4', 'burst10'];
+
+function applyLook() {
+  R.dataset.theme = cfg.theme;
+  if (cfg.theme === 'material' && !$('gsf')) {      // the Material theme loads its typeface from Google Fonts
+    const l = document.createElement('link'); l.id = 'gsf'; l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600&display=swap';
+    document.head.append(l);
+  }
+  let mode = cfg.mode;
+  if (cfg.bg === 'color') mode = lum(cfg.bgColor) > .4 ? 'light' : 'dark';
+  const sky = cfg.bg === 'sky';
+  R.classList.toggle('bg-sky', sky);
+  R.style.setProperty('--sky-dim', cfg.skyDim / 100);
+  if (sky) { paintSky(); mode = skyLight ? 'light' : 'dark'; }      // text follows the sky: dark text by day, light by night
+  if (mode === 'auto' || FIXED_MODE.includes(cfg.theme)) delete R.dataset.mode; else R.dataset.mode = mode;
+
+  const custom = cfg.customFont.replace(/["';{}\\]/g, '').trim();
+  const f = FONTS[cfg.font] || (cfg.font === 'custom' && custom ? `"${custom}", system-ui, sans-serif` : '');
+  for (const v of ['--sans', '--serif']) f ? R.style.setProperty(v, f) : R.style.removeProperty(v);
+  cfg.accent ? R.style.setProperty('--accent', cfg.accent) : R.style.removeProperty('--accent');
+
+  R.classList.toggle('bg-color', cfg.bg === 'color');
+  cfg.bg === 'color' ? R.style.setProperty('--bg', cfg.bgColor) : R.style.removeProperty('--bg');
+  const img = cfg.bg === 'image' && (cfg.bgUrl || bgData);
+  R.classList.toggle('bg-image', !!img);
+  $('bgimg').style.backgroundImage = img ? `url("${img.replace(/["\\\n]/g, '')}")` : '';
+  R.style.setProperty('--dim', cfg.dim / 100);
+}
+function save() { store.set('cfg', cfg); applyLook(); syncPanel(); }
+
+function seg(box, options, current, pick, disabled) {
+  box.replaceChildren(...options.map(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = label; b.disabled = !!disabled;
+    b.setAttribute('aria-pressed', id === current);
+    b.onclick = () => pick(id);
+    return b;
+  }));
+}
+function syncPanel() {
+  $('themes').replaceChildren(...THEMES.map(t => {
+    const b = document.createElement('button'); b.type = 'button';
+    b.setAttribute('aria-pressed', t.id === cfg.theme);
+    const sw = document.createElement('div'); sw.className = 'swatch'; sw.textContent = 'Aa';
+    sw.style.cssText = `background:${t.bg};color:${t.fg};font-family:${t.font}`;
+    b.append(sw, t.name);
+    b.onclick = () => {           // a theme is a full preset: drop font, accent and background overrides
+      if (cfg.theme !== t.id) Object.assign(cfg, { theme: t.id, font: '', accent: '', bg: cfg.bg === 'color' ? 'theme' : cfg.bg });
+      save();
+    };
+    return b;
+  }));
+  const fixed = FIXED_MODE.includes(cfg.theme);
+  seg($('modes'), [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']], fixed ? '' : cfg.mode,
+      m => { cfg.mode = m; save(); }, fixed || cfg.bg === 'color' || cfg.bg === 'sky');
+  $('icons-style').value = iconMode();
+  $('font').value = cfg.font;
+  $('font-custom-row').hidden = cfg.font !== 'custom';
+  if (document.activeElement !== $('font-custom')) $('font-custom').value = cfg.customFont;
+  const acc = cfg.accent || getComputedStyle(R).getPropertyValue('--accent');
+  $('accent').value = toHex(acc);
+  $('accent-reset').hidden = !cfg.accent;
+  seg($('bgtypes'), [['theme', 'Theme'], ['color', 'Colour'], ['image', 'Image'], ['sky', 'Live sky']], cfg.bg, b => { cfg.bg = b; save(); loadWeather(); });
+  $('bg-sky-rows').hidden = cfg.bg !== 'sky';
+  if (document.activeElement !== $('sky-city')) $('sky-city').value = cfg.loc?.name || '';
+  $('sky-wx').value = cfg.skyWx; $('sky-dim').value = cfg.skyDim;
+  const lw = liveWx();
+  $('sky-msg').textContent = skyMsg + (!cfg.loc ? 'No place set yet, so this shows clear skies with sunrise at 6:15 and sunset at 18:30.'
+    : lw ? `${cfg.loc.name} · ${lw.temp} · ${wmo(lw.code)[0]} · sun ${new Date(lw.sr).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} – ${new Date(lw.ss).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} your time`
+    : skyMsg ? '' : 'Checking the sky…');
+  $('bg-color-row').hidden = cfg.bg !== 'color';
+  $('bg-image-rows').hidden = cfg.bg !== 'image';
+  $('bg-color').value = cfg.bgColor;
+  if (document.activeElement !== $('bg-url')) $('bg-url').value = cfg.bgUrl;
+  $('bg-remove').hidden = !(cfg.bgUrl || bgData);
+  $('dim').value = cfg.dim;
+}
+function toHex(color) {          // resolve any CSS colour (incl. light-dark) to #rrggbb for <input type=color>
+  const c = document.createElement('canvas').getContext('2d');
+  const probe = document.createElement('i'); probe.style.color = color; document.body.append(probe);
+  c.fillStyle = getComputedStyle(probe).color; probe.remove();
+  return /^#[0-9a-f]{6}$/i.test(c.fillStyle) ? c.fillStyle : '#888888';
+}
+
+$('font').onchange = e => { cfg.font = e.target.value; save(); if (cfg.font === 'custom') $('font-custom').focus(); };
+$('font-custom').oninput = e => { cfg.customFont = e.target.value.slice(0, 60); save(); };
+$('accent').oninput = e => { cfg.accent = e.target.value; save(); };
+$('accent-reset').onclick = () => { cfg.accent = ''; save(); };
+$('bg-color').oninput = e => { cfg.bgColor = e.target.value; save(); };
+$('dim').oninput = e => { cfg.dim = +e.target.value; save(); };
+$('bg-url').onchange = e => { cfg.bgUrl = e.target.value.trim(); save(); };
+$('bg-pick').onclick = () => $('bg-file').click();
+$('bg-remove').onclick = () => { bgData = ''; store.del('bgimg'); cfg.bgUrl = ''; $('bg-msg').textContent = ''; save(); };
+$('bg-file').onchange = async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  const msg = $('bg-msg'); msg.textContent = 'Loading…';
+  try {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.src = url; await img.decode();
+    let ok = false;
+    for (const [max, q] of [[2400, .88], [1800, .78], [1280, .7]]) {   // shrink until it fits in browser storage
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const data = c.toDataURL('image/jpeg', q);
+      if (store.set('bgimg', data)) { bgData = data; ok = true; break; }
+    }
+    URL.revokeObjectURL(url);
+    msg.textContent = ok ? '' : 'That image is too large to save in this browser.';
+    if (ok) { cfg.bgUrl = ''; save(); }
+  } catch { msg.textContent = 'Could not read that image.'; }
+};
+$('reset').onclick = () => { cfg = { ...DEFAULTS }; save(); };
+/* share setup: everything about the look, nothing ransoml (no name, to-dos or city) */
+const SHARE_KEYS = ['cfg', 'layout', 'links', 'engine', 'h24', 'snap', 'bgimg'];
+$('export').onclick = () => {
+  const data = { homePageSetup: 1 };
+  for (const k of SHARE_KEYS) { const v = store.get(k, undefined); if (v !== undefined) data[k] = v; }
+  if (data.cfg) data.cfg = { ...data.cfg, loc: null };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+  a.download = 'home-setup.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('import').onclick = () => $('import-file').click();
+$('import-file').onchange = async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || data.homePageSetup !== 1) throw 0;
+    if (Array.isArray(data.links))                    // only plain web links from an imported file
+      data.links = data.links.filter(l => l && typeof l.n === 'string' && /^https?:\/\//i.test(l.u)).map(l => ({ n: l.n.slice(0, 30), u: l.u }));
+    else delete data.links;
+    if (data.cfg) {
+      data.cfg = { ...DEFAULTS, ...data.cfg, loc: cfg.loc };
+      data.cfg.theme = LEGACY[data.cfg.theme] || data.cfg.theme;
+      if (!THEMES.some(t => t.id === data.cfg.theme)) data.cfg.theme = 'paper';
+    }
+    for (const k of SHARE_KEYS) if (k in data && !store.set(k, data[k])) throw 0;
+    location.reload();
+  } catch { $('share-msg').textContent = 'That file could not be imported.'; }
+};
+$('icons-style').onchange = e => { cfg.icons = e.target.value; save(); renderLinks(); };
+$('sky-wx').onchange = e => { cfg.skyWx = e.target.value; save(); };
+$('sky-dim').oninput = e => { cfg.skyDim = +e.target.value; save(); };
+$('sky-city').onchange = async e => {
+  const name = e.target.value.trim();
+  if (!name) { cfg.loc = null; skyMsg = ''; return save(); }
+  try {
+    const j = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(name))).json();
+    const r = j.results?.[0];
+    if (!r) { skyMsg = `Couldn't find "${name}". `; return syncPanel(); }
+    cfg.loc = { name: r.name + (r.country_code ? ', ' + r.country_code : ''), lat: +r.latitude.toFixed(2), lon: +r.longitude.toFixed(2) };
+    skyMsg = ''; e.target.blur(); save(); loadWeather(true);
+  } catch { skyMsg = 'Could not look that place up right now. '; syncPanel(); }
+};
+$('sky-here').onclick = () => {
+  if (!navigator.geolocation) { skyMsg = 'This browser cannot share a location. '; return syncPanel(); }
+  navigator.geolocation.getCurrentPosition(p => {
+    cfg.loc = { name: 'My location', lat: +p.coords.latitude.toFixed(2), lon: +p.coords.longitude.toFixed(2) };
+    skyMsg = ''; save(); loadWeather(true);
+  }, () => { skyMsg = 'Location was not shared; type a city instead. '; syncPanel(); });
+};
+
+const panel = $('panel');
+$('open-panel').onclick = e => { e.stopPropagation(); panel.classList.toggle('open'); };
+$('close-panel').onclick = () => panel.classList.remove('open');
+addEventListener('click', e => { if (panel.classList.contains('open') && !e.composedPath().includes(panel)) panel.classList.remove('open'); });
+
+applyLook(); syncPanel(); loadWeather();
+
+/* ---------- layout: move, resize, remove, re-add ---------- */
+const WIDGETS = { clock: 'Clock', greet: 'Greeting', search: 'Search', shortcuts: 'Shortcuts', today: 'Today' };
+let layout = store.get('layout', {}), snap = store.get('snap', true);
+const GRID = 20;
+const wEl = id => document.querySelector(`.w[data-w="${id}"]`);
+function place(el, L) {
+  el.hidden = !!L.hidden;
+  el.style.width = L.w ? L.w + 'px' : '';
+  el.style.marginLeft = L.w ? `calc(50% - ${L.w / 2}px)` : '';      // keep it centred on its spot as it grows
+  el.style.transform = L.x || L.y ? `translate(${L.x || 0}px, ${L.y || 0}px)` : '';
+}
+function applyLayout() {
+  for (const id in WIDGETS) place(wEl(id), layout[id] || {});
+  $('corner-reset').hidden = !Object.values(layout).some(L => L.hidden || L.x || L.y || L.w);   // only when something was changed
+  const hidden = Object.keys(WIDGETS).filter(id => layout[id]?.hidden);
+  $('lbar-add').replaceChildren(...hidden.map(id => {
+    const b = document.createElement('button'); b.className = 'btn'; b.textContent = '+ ' + WIDGETS[id];
+    b.onclick = () => setHidden(id, false);
+    return b;
+  }));
+  $('w-checks').replaceChildren(...Object.entries(WIDGETS).map(([id, name]) => {
+    const l = document.createElement('label'); l.className = 'check';
+    const c = document.createElement('input'); c.type = 'checkbox'; c.checked = !layout[id]?.hidden;
+    c.onchange = () => setHidden(id, !c.checked);
+    l.append(c, name); return l;
+  }));
+}
+function saveLayout() { store.set('layout', layout); applyLayout(); }
+function setHidden(id, h) { (layout[id] ??= {}).hidden = h; saveLayout(); }
+function resetLayout() { layout = {}; saveLayout(); }
+function setLayoutMode(on) { R.classList.toggle('layout', on); $('layout-btn').textContent = on ? 'Done' : 'Layout'; if (on) panel.classList.remove('open'); }
+
+for (const id in WIDGETS) {
+  const el = wEl(id);
+  const x = document.createElement('button'); x.className = 'w-x'; x.textContent = '×'; x.title = 'Remove ' + WIDGETS[id];
+  x.onclick = () => setHidden(id, true);
+  const grip = document.createElement('div'); grip.className = 'w-size'; grip.title = 'Resize';
+  el.append(x, grip);
+  el.addEventListener('pointerdown', e => {
+    if (!R.classList.contains('layout') || e.button || e.target === x) return;
+    e.preventDefault();
+    const L = layout[id] ??= {}, resize = e.target === grip;
+    const sx = e.clientX, sy = e.clientY, ox = L.x || 0, oy = L.y || 0, ow = el.offsetWidth;
+    const r0 = el.getBoundingClientRect(), baseL = r0.left - ox, baseT = r0.top + scrollY - oy, cx = r0.left + r0.width / 2;
+    const near = v => Math.round(v / GRID) * GRID;
+    try { el.setPointerCapture(e.pointerId); } catch {}
+    const move = ev => {
+      const s = snap && !ev.altKey;                    // Alt = free movement for this drag
+      if (resize) {
+        let w = ow + (ev.clientX - sx) * 2;
+        if (s) w = 2 * (near(cx + w / 2) - cx);         // right edge lands on a grid line
+        L.w = Math.max(140, Math.min(2400, Math.round(w)));
+      } else {
+        let x = ox + ev.clientX - sx, y = oy + ev.clientY - sy;
+        if (s) { x = near(baseL + x) - baseL; y = near(baseT + y) - baseT; }   // top-left corner lands on the grid
+        L.x = +x.toFixed(2); L.y = +y.toFixed(2);       // keep fractions so the snapped edge is exactly on the line
+      }
+      place(el, L);
+    };
+    const up = () => {
+      el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up);
+      saveLayout();
+    };
+    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  });
+}
+function setSnap(on) {
+  snap = on; store.set('snap', on);
+  R.classList.toggle('snap', on);
+  $('lbar-snap').textContent = 'Snap: ' + (on ? 'on' : 'off'); $('lbar-snap').setAttribute('aria-pressed', on);
+  $('snap-check').checked = on;
+}
+$('lbar-snap').onclick = () => setSnap(!snap);
+$('snap-check').onchange = e => setSnap(e.target.checked);
+addEventListener('scroll', () => $('grid').style.setProperty('--gy', -(scrollY % GRID) + 'px'), { passive: true });
+setSnap(snap);
+$('layout-btn').onclick = () => setLayoutMode(!R.classList.contains('layout'));
+$('lbar-done').onclick = () => setLayoutMode(false);
+$('panel-layout').onclick = e => { e.stopPropagation(); setLayoutMode(true); };
+$('lbar-reset').onclick = $('panel-reset-layout').onclick = $('corner-reset').onclick = resetLayout;
+applyLayout();
+
+/* ---------- clock & greeting ---------- */
+let h24 = store.get('h24', false);
+function tick() {
+  const d = new Date(), h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0');
+  const clock = $('clock');
+  clock.textContent = (h24 ? String(h).padStart(2, '0') : (h % 12 || 12)) + ':' + m;
+  if (!h24) { const s = document.createElement('small'); s.textContent = h < 12 ? 'AM' : 'PM'; clock.append(s); }
+  $('greet').textContent = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  $('date').textContent = d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  $('fmt').textContent = h24 ? '12h' : '24h';
+}
+$('fmt').onclick = () => { h24 = !h24; store.set('h24', h24); tick(); };
+tick();
+setInterval(tick, 1000);
+
+const nameEl = $('name');
+nameEl.textContent = store.get('name', 'friend');
+nameEl.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); } };
+nameEl.onblur = () => {
+  const v = nameEl.textContent.trim().slice(0, 30) || 'friend';
+  nameEl.textContent = v; store.set('name', v);
+};
+
+/* ---------- search ---------- */
+const engines = [
+  { id: 'g',  name: 'Google',     url: 'https://www.google.com/search?q=' },
+  { id: 'd',  name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+  { id: 'y',  name: 'YouTube',    url: 'https://www.youtube.com/results?search_query=' },
+  { id: 'gh', name: 'GitHub',     url: 'https://github.com/search?q=' },
+  { id: 'w',  name: 'Wikipedia',  url: 'https://en.wikipedia.org/w/index.php?search=' }
+];
+/* As an installed extension, "Default" hands the search to the browser, so it uses whatever engine the person
+   has set in their browser settings (both stores expect new-tab extensions to respect that). */
+const browserSearch = (globalThis.browser ?? globalThis.chrome)?.search;
+if (browserSearch?.query) engines.unshift({ id: 'b', name: 'Default', url: '' });
+let engine = store.get('engine', browserSearch?.query ? 'b' : 'g');
+if (!engines.some(e => e.id === engine)) engine = 'g';
+function renderEngines() {
+  seg($('engines'), engines.map(e => [e.id, e.name]), engine, id => { engine = id; store.set('engine', id); renderEngines(); $('q').focus(); });
+  [...$('engines').children].forEach((b, i) => b.title = `Or type "${engines[i].id} " before your search`);
+  $('q').placeholder = 'Search ' + (engine === 'b' ? 'the web' : engines.find(e => e.id === engine).name) + ' or type an address';
+}
+renderEngines();
+
+const looksLikeUrl = s => !/\s/.test(s) && (/^https?:\/\//i.test(s) || /^localhost(:\d+)?(\/|$)/i.test(s) || /^([\w-]+\.)+[a-z]{2,}(:\d+)?(\/\S*)?$/i.test(s));
+const toUrl = s => /^https?:\/\//i.test(s) ? s : (/^localhost/i.test(s) ? 'http://' : 'https://') + s;
+
+$('search').onsubmit = e => {
+  e.preventDefault();
+  let q = $('q').value.trim();
+  if (!q) return;
+  if (looksLikeUrl(q)) return void (location.href = toUrl(q));
+  let eng = engines.find(x => x.id === engine);
+  const m = q.match(/^(\S+)\s+(.+)$/);
+  const pre = m && engines.find(x => x.id === m[1].toLowerCase());
+  if (pre) { eng = pre; q = m[2]; }
+  if (eng.id === 'b') return void browserSearch.query({ text: q, disposition: 'CURRENT_TAB' });
+  location.href = eng.url + encodeURIComponent(q);
+};
+addEventListener('keydown', e => {
+  const a = document.activeElement;
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable;
+  if (e.key === '/' && !typing) { e.preventDefault(); $('q').focus(); }
+  if (e.key === 'Escape') {
+    if (R.classList.contains('layout')) setLayoutMode(false);
+    else if (panel.classList.contains('open')) panel.classList.remove('open');
+    else if (a === $('q')) $('q').value = '';
+  }
+});
+
+/* ---------- shortcuts ---------- */
+let links = store.get('links', [
+  { n: 'Gmail', u: 'https://mail.google.com' },
+  { n: 'YouTube', u: 'https://www.youtube.com' },
+  { n: 'GitHub', u: 'https://github.com' },
+  { n: 'Claude', u: 'https://claude.ai' },
+  { n: 'Drive', u: 'https://drive.google.com' },
+  { n: 'Maps', u: 'https://maps.google.com' },
+  { n: 'Reddit', u: 'https://www.reddit.com' },
+  { n: 'Wikipedia', u: 'https://www.wikipedia.org' }
+]);
+let editing = false, editIndex = -1;
+const hue = s => { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0)) % 360; return h; };
+
+function tile(label, glyph, h) {
+  const mono = document.createElement('span'); mono.className = 'mono'; mono.textContent = glyph;
+  if (h !== undefined) mono.style.setProperty('--h', h);
+  const text = document.createElement('span'); text.textContent = label;
+  return [mono, text];
+}
+/* Shortcut icons. "pack" = Simple Icons (single-colour brand glyphs that take the theme's colours);
+   falls back to the site's own icon, then to the initial. */
+const SLUGS = {
+  'mail.google.com': 'gmail', 'drive.google.com': 'googledrive', 'maps.google.com': 'googlemaps', 'docs.google.com': 'googledocs',
+  'calendar.google.com': 'googlecalendar', 'photos.google.com': 'googlephotos', 'meet.google.com': 'googlemeet',
+  'translate.google.com': 'googletranslate', 'keep.google.com': 'googlekeep', 'music.youtube.com': 'youtubemusic',
+  'twitter.com': 'x', 'claude.ai': 'claude', 'web.whatsapp.com': 'whatsapp', 'open.spotify.com': 'spotify',
+  'news.ycombinator.com': 'ycombinator', 'web.telegram.org': 'telegram', 'store.steampowered.com': 'steam',
+  'steampowered.com': 'steam', 'mail.proton.me': 'protonmail', 'last.fm': 'lastdotfm', 'chatgpt.com': 'openai'
+};
+function slugFor(host) {
+  const h = host.replace(/^www\./, '');
+  if (SLUGS[h]) return SLUGS[h];
+  const p = h.split('.');                              // reddit.com -> reddit, en.wikipedia.org -> wikipedia
+  return (p.length > 1 ? p[p.length - 2] : p[0]).replace(/[^a-z0-9]/g, '');
+}
+function setIcon(mono, url) {
+  const site = () => {
+    const img = new Image();
+    img.alt = ''; img.referrerPolicy = 'no-referrer';
+    img.onload = () => { if (img.naturalWidth > 1) mono.classList.add('has-icon'); };
+    img.src = 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&size=64&url=' + encodeURIComponent(url.origin);
+    mono.append(img);
+  };
+  const slug = iconMode() === 'pack' && slugFor(url.hostname);
+  if (!slug) return site();
+  const src = `https://cdn.jsdelivr.net/npm/simple-icons@15/icons/${slug}.svg`, probe = new Image();
+  probe.crossOrigin = 'anonymous';                     // a mask needs a CORS-readable image, so test it that way
+  probe.onload = () => {
+    const g = document.createElement('i'); g.className = 'glyph';
+    g.style.webkitMaskImage = g.style.maskImage = `url("${src}")`;
+    mono.append(g); mono.classList.add('has-glyph');
+  };
+  probe.onerror = site;                                // brand not in the pack
+  probe.src = src;
+}
+function renderLinks() {
+  const box = $('tiles'); box.replaceChildren();
+  links.forEach((l, i) => {
+    const a = document.createElement('a');
+    a.className = 'tile'; a.href = l.u; a.title = l.u;
+    a.append(...tile(l.n, [...l.n][0].toUpperCase(), hue(l.n)));
+    if (iconMode() !== 'letters') try { setIcon(a.firstChild, new URL(l.u)); } catch {}
+    a.firstChild.style.setProperty('--sa', `var(--shape-${SHAPE_ORDER[i % 6]})`);
+    a.firstChild.style.setProperty('--sb', `var(--shape-${SHAPE_ORDER[(i + 2) % 6]})`);
+    a.onclick = e => { if (editing) { e.preventDefault(); openDlg(i); } };
+    box.append(a);
+  });
+  const add = document.createElement('button');
+  add.className = 'tile add'; add.type = 'button';
+  add.append(...tile('Add', '+'));
+  add.firstChild.style.setProperty('--sa', 'var(--shape-circle)');
+  add.firstChild.style.setProperty('--sb', 'var(--shape-soft6)');
+  add.onclick = () => openDlg(-1);
+  box.append(add);
+  $('shortcuts').classList.toggle('editing', editing);
+  $('edit').textContent = editing ? 'Done' : 'Edit';
+}
+$('edit').onclick = () => { editing = !editing; renderLinks(); };
+
+function openDlg(i) {
+  editIndex = i;
+  $('dlg-title').textContent = i < 0 ? 'Add shortcut' : 'Edit shortcut'; ransom($('dlg-title'));
+  $('s-name').value = i < 0 ? '' : links[i].n;
+  $('s-url').value = i < 0 ? '' : links[i].u;
+  $('s-del').hidden = i < 0;
+  $('dlg').showModal();
+}
+$('s-cancel').onclick = () => $('dlg').close();
+$('s-del').onclick = () => { links.splice(editIndex, 1); saveLinks(); $('dlg').close(); };
+$('dlg-form').onsubmit = () => {
+  const n = $('s-name').value.trim(), raw = $('s-url').value.trim();
+  if (!n || !raw) return;
+  const item = { n, u: toUrl(raw) };
+  if (editIndex < 0) links.push(item); else links[editIndex] = item;
+  saveLinks();
+};
+function saveLinks() { store.set('links', links); renderLinks(); }
+renderLinks();
+
+/* ---------- today list ---------- */
+let todos = store.get('todos', []);
+function renderTodos() {
+  const ul = $('todos'); ul.replaceChildren();
+  todos.forEach((t, i) => {
+    const li = document.createElement('li'); if (t.done) li.className = 'done';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = t.done; cb.id = 't' + i;
+    cb.onchange = () => { t.done = cb.checked; saveTodos(); };
+    const lb = document.createElement('label'); lb.htmlFor = cb.id; lb.textContent = t.t;
+    const x = document.createElement('button'); x.textContent = '×'; x.title = 'Remove'; x.setAttribute('aria-label', 'Remove ' + t.t);
+    x.onclick = () => { todos.splice(i, 1); saveTodos(); };
+    li.append(cb, lb, x); ul.append(li);
+  });
+  const left = todos.filter(t => !t.done).length;
+  $('left').textContent = todos.length ? '· ' + left + ' left' : '';
+  $('clear').hidden = !todos.some(t => t.done);
+}
+function saveTodos() { store.set('todos', todos); renderTodos(); }
+$('todo-form').onsubmit = e => {
+  e.preventDefault();
+  const v = $('todo-in').value.trim(); if (!v) return;
+  todos.push({ t: v, done: false }); $('todo-in').value = ''; saveTodos();
+};
+$('clear').onclick = () => { todos = todos.filter(t => !t.done); saveTodos(); };
+renderTodos();
+</script>
+</body>
+</html>
